@@ -163,7 +163,7 @@ namespace Rcpp {
     private:
       ListOf& list;
       int index;
-    };
+    }; // Proxy
     
     friend class Proxy;
   
@@ -172,6 +172,10 @@ namespace Rcpp {
     
     template <typename U>
     ListOf(const U& data_): List(data_) {}
+    
+    operator SEXP() const {
+      return wrap(static_cast<const List&>(*this));
+    }
 
     Proxy operator[](int i) {
       return Proxy(*this, i);
@@ -215,13 +219,5 @@ namespace Rcpp {
     }
     
   }; // ListOf<T>
-  
-  
-  // wrap
-  template <typename T>
-  SEXP wrap( ListOf<T> x ) {
-    debug("SEXP wrap( ListOf<T> x )\n");
-    return wrap( static_cast<List>(x) );
-  }
   
 } // Rcpp
