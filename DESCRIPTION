@@ -11,4 +11,4 @@ Description: This package provides the template container class ListOf<T>
   for use in Rcpp code. By linking to this package, you get access to the
   <ListOf.h> header file and the ListOf<T> set of classes. Hopefully soon
   to become part of Rcpp.
-License: GPL (>= 3)
+License: GPL (>= 2)
