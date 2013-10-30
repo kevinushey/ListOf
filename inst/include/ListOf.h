@@ -15,20 +15,6 @@ namespace Rcpp {
   template <typename T>
   class ListOf: public List {
     
-  // as: ListOf<T> to List
-  template <typename U>
-  friend List as( const ListOf<T>& x ) {
-    debug("friend List as( const ListOf<T>& x )\n");
-    return static_cast<List>(x);
-  }
-  
-  // as: something else to ListOf<T>
-  template <typename U>
-  friend ListOf<T> as(const U& x) {
-    debug("friend ListOf<T> as(const U& x)\n");
-    return static_cast< ListOf<T> >(x);
-  }
-    
   public:
   
     // Proxy class for distinguishing [] read/write
