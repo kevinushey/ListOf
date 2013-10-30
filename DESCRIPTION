@@ -1,0 +1,14 @@
+Package: ListOf
+Type: Package
+Title: Adds typed List containers, ListOf<T>, to Rcpp.
+Version: 0.1.0
+Date: 2013-10-25
+Author: Kevin Ushey
+Maintainer: Kevin Ushey <kevinushey@gmail.com>
+URL: https://github.com/kevinushey/ListOf
+BugReports: https://github.com/kevinushey/ListOf/issues
+Description: This package provides the template container class ListOf<T>
+  for use in Rcpp code. By linking to this package, you get access to the
+  <ListOf.h> header file and the ListOf<T> set of classes. Hopefully soon
+  to become part of Rcpp.
+License: GPL (>= 3)
