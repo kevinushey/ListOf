@@ -1,8 +1,6 @@
 #ifndef ListOf_h_
 #define ListOf_h_
 
-#define DEBUG
-
 #ifdef DEBUG
 #define debug(x) Rprintf(x)
 #define debug2(x, y) Rprintf(x, y)
@@ -12,6 +10,11 @@
 #define debug2(x, y)
 #define debug3(x, y, z)
 #endif
+
+// a define used to clean up some of the code repetition
+#define THIS static_cast<List>(list)[index]
+#define LHS static_cast<List>(lhs.list)[lhs.index]
+#define RHS static_cast<List>(rhs.list)[rhs.index]
 
 #include <RcppCommon.h>
 
@@ -37,116 +40,112 @@ namespace Rcpp {
       // assignment operators
       Proxy& operator=(const Proxy& rhs) {
         debug("Proxy& operator=(const Proxy& rhs)\n");
-        static_cast<List>(list)[index] = static_cast<List>(rhs.list)[rhs.index];
+        THIS = RHS;
         return *this;
       }
       
       Proxy& operator=(T vector) {
         debug("Proxy& operator=(T vector)\n");
-        static_cast<List>(list)[index] = as<T>(vector);
+        THIS = vector;
         return *this;
       }
       
       // addition operators
       T operator+(const Proxy& rhs) {
         debug("T operator+(const Proxy& rhs)\n");
-        return as<T>(static_cast<List>(list)[index]) + as<T>(static_cast<List>(rhs.list)[rhs.index]);
+        return as<T>(THIS) + as<T>(RHS);
       }
       
       friend T operator+(const T& lhs, const Proxy& rhs) {
         debug("friend T operator+(const T& lhs, const Proxy& rhs)\n");
-        return lhs + as<T>(static_cast<List>(rhs.list)[rhs.index]);
+        return lhs + as<T>(RHS);
       }
       
       template <typename U>
       T operator+(const U& rhs) {
         debug("T operator+(const U& rhs)\n");
-        return as<T>(static_cast<List>(list)[index]) + rhs;
+        return as<T>(THIS) + rhs;
       }
       
       template <typename U>
       Proxy& operator+=(const U& rhs) {
-        static_cast<List>(list)[index] =
-          as<T>(static_cast<List>(list)[index]) + rhs;
+        THIS = as<T>(THIS) + rhs;
         return *this;
       }
       
       // subtraction operators
       T operator-(const Proxy& rhs) {
         debug("T operator-(const Proxy& rhs)\n");
-        return as<T>(static_cast<List>(list)[index]) - as<T>(static_cast<List>(rhs.list)[rhs.index]);
+        return as<T>(THIS) - as<T>(RHS);
       }
       
       friend T operator-(const T& lhs, const Proxy& rhs) {
         debug("friend T operator-(const T& lhs, const Proxy& rhs)\n");
-        return lhs - as<T>(static_cast<List>(rhs.list)[rhs.index]);
+        return lhs - as<T>(RHS);
       }
       
       template <typename U>
       T operator-(const U& rhs) {
         debug("T operator-(const U& rhs)\n");
-        return as<T>(static_cast<List>(list)[index]) - rhs;
+        return as<T>(THIS) - rhs;
       }
       
       template <typename U>
       Proxy& operator-=(const U& rhs) {
-        static_cast<List>(list)[index] =
-          as<T>(static_cast<List>(list)[index]) - rhs;
+        THIS = as<T>(THIS) - rhs;
         return *this;
       }
       
       // multiplication operators
       T operator*(const Proxy& rhs) {
         debug("T operator*(const Proxy& rhs)\n");
-        return as<T>(static_cast<List>(list)[index]) * as<T>(static_cast<List>(rhs.list)[rhs.index]);
+        return as<T>(THIS) * as<T>(RHS);
       }
       
       friend T operator*(const T& lhs, const Proxy& rhs) {
         debug("friend T operator*(const T& lhs, const Proxy& rhs)\n");
-        return lhs * as<T>(static_cast<List>(rhs.list)[rhs.index]);
+        return lhs * as<T>(RHS);
       }
       
       template <typename U>
       T operator*(const U& rhs) {
         debug("T operator*(const U& rhs)\n");
-        return as<T>(static_cast<List>(list)[index]) * rhs;
+        return as<T>(THIS) * rhs;
       }
       
       template <typename U>
       Proxy& operator*=(const U& rhs) {
-        static_cast<List>(list)[index] =
-          as<T>(static_cast<List>(list)[index]) * rhs;
+        THIS = as<T>(THIS) * rhs;
         return *this;
       }
       
       // division operators
       T operator/(const Proxy& rhs) {
         debug("T operator/(const Proxy& rhs)\n");
-        return as<T>(static_cast<List>(list)[index]) / as<T>(static_cast<List>(rhs.list)[rhs.index]);
+        return as<T>(THIS) / as<T>(RHS);
       }
       
       friend T operator/(const T& lhs, const Proxy& rhs) {
         debug("friend T operator/(const T& lhs, const Proxy& rhs)\n");
-        return lhs / as<T>(static_cast<List>(rhs.list)[rhs.index]);
+        return lhs / as<T>(RHS);
       }
       
       template <typename U>
       T operator/(const U& rhs) {
         debug("T operator/(const U& rhs)\n");
-        return as<T>(static_cast<List>(list)[index]) / rhs;
+        return as<T>(THIS) / rhs;
       }
       
       template <typename U>
       Proxy& operator/=(const U& rhs) {
-        static_cast<List>(list)[index] =
-          as<T>(static_cast<List>(list)[index]) / rhs;
+        THIS = as<T>(THIS) / rhs;
         return *this;
       }
       
       // read
       operator T() const {
         debug("operator T() const\n");
-        return as<T>(static_cast<List>(list)[index]);
+        return as<T>(THIS);
       }
       
       // TODO: reference operator
@@ -217,7 +216,8 @@ namespace Rcpp {
       template <typename U>
       SafeListOf(const U& data_): ListOf<T>(data_) {
         for (List::iterator it = this->begin(); it != this->end(); ++it) {
-          *it = as<T>(*it);
+          if (!is<T>(*it)) 
+            *it = as<T>(*it);
         }
       }
   }; // SafeListOf<T>
