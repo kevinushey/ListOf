@@ -159,7 +159,6 @@ namespace Rcpp {
     friend class Proxy;
   
     ListOf() {}
-    ListOf(const List& list_): List(list_) {}
     
     template <typename U>
     ListOf(const U& data_): List(data_) {}
