@@ -1,8 +1,6 @@
 #ifndef MatrixDims_h_
 #define MatrixDims_h_
 
-#define DEBUG
-
 #ifdef DEBUG
 #define debug(x) Rprintf(x)
 #define debug2(x, y) Rprintf(x, y)
