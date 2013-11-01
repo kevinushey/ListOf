@@ -211,6 +211,18 @@ namespace Rcpp {
     
   }; // ListOf<T>
   
+  template <class T>
+  class SafeListOf: public ListOf<T> {
+    public:
+      SafeListOf() {}
+      template <typename U>
+      SafeListOf(const U& data_): ListOf<T>(data_) {
+        for (List::iterator it = this->begin(); it != this->end(); ++it) {
+          *it = as<T>(*it);
+        }
+      }
+  }; // SafeListOf<T>
+  
 } // Rcpp
 
 #endif
