@@ -1,3 +1,8 @@
+#ifndef ListOf_h_
+#define ListOf_h_
+
+#define DEBUG
+
 #ifdef DEBUG
 #define debug(x) Rprintf(x)
 #define debug2(x, y) Rprintf(x, y)
@@ -8,7 +13,7 @@
 #define debug3(x, y, z)
 #endif
 
-#include <Rcpp.h>
+#include <RcppCommon.h>
 
 namespace Rcpp {
   
@@ -207,3 +212,5 @@ namespace Rcpp {
   }; // ListOf<T>
   
 } // Rcpp
+
+#endif
