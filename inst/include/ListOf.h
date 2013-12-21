@@ -1,16 +1,6 @@
 #ifndef ListOf_h_
 #define ListOf_h_
 
-#ifdef DEBUG
-#define debug(x) Rprintf(x)
-#define debug2(x, y) Rprintf(x, y)
-#define debug3(x, y, z) Rprintf(x, y, z)
-#else
-#define debug(x)
-#define debug2(x, y)
-#define debug3(x, y, z)
-#endif
-
 // a define used to clean up some of the code repetition
 #define THIS static_cast<List>(list)[index]
 #define LHS static_cast<List>(lhs.list)[lhs.index]
@@ -30,40 +20,40 @@ namespace Rcpp {
     public:
     
       Proxy(ListOf& list_, int index_): list(list_), index(index_) {
-        debug("Proxy(ListOf& list_, int index_): list(list_), index(index_)\n");
+        RCPP_DEBUG("Proxy(ListOf& list_, int index_): list(list_), index(index_)\n");
       }
       
       ~Proxy() {
-        debug("~Proxy()\n");
+        RCPP_DEBUG("~Proxy()\n");
       }
       
       // assignment operators
       Proxy& operator=(const Proxy& rhs) {
-        debug("Proxy& operator=(const Proxy& rhs)\n");
+        RCPP_DEBUG("Proxy& operator=(const Proxy& rhs)\n");
         THIS = RHS;
         return *this;
       }
       
       Proxy& operator=(T vector) {
-        debug("Proxy& operator=(T vector)\n");
+        RCPP_DEBUG("Proxy& operator=(T vector)\n");
         THIS = vector;
         return *this;
       }
       
       // addition operators
       T operator+(const Proxy& rhs) {
-        debug("T operator+(const Proxy& rhs)\n");
+        RCPP_DEBUG("T operator+(const Proxy& rhs)\n");
         return as<T>(THIS) + as<T>(RHS);
       }
       
       friend T operator+(const T& lhs, const Proxy& rhs) {
-        debug("friend T operator+(const T& lhs, const Proxy& rhs)\n");
+        RCPP_DEBUG("friend T operator+(const T& lhs, const Proxy& rhs)\n");
         return lhs + as<T>(RHS);
       }
       
       template <typename U>
       T operator+(const U& rhs) {
-        debug("T operator+(const U& rhs)\n");
+        RCPP_DEBUG("T operator+(const U& rhs)\n");
         return as<T>(THIS) + rhs;
       }
       
@@ -75,18 +65,18 @@ namespace Rcpp {
       
       // subtraction operators
       T operator-(const Proxy& rhs) {
-        debug("T operator-(const Proxy& rhs)\n");
+        RCPP_DEBUG("T operator-(const Proxy& rhs)\n");
         return as<T>(THIS) - as<T>(RHS);
       }
       
       friend T operator-(const T& lhs, const Proxy& rhs) {
-        debug("friend T operator-(const T& lhs, const Proxy& rhs)\n");
+        RCPP_DEBUG("friend T operator-(const T& lhs, const Proxy& rhs)\n");
         return lhs - as<T>(RHS);
       }
       
       template <typename U>
       T operator-(const U& rhs) {
-        debug("T operator-(const U& rhs)\n");
+        RCPP_DEBUG("T operator-(const U& rhs)\n");
         return as<T>(THIS) - rhs;
       }
       
@@ -98,18 +88,18 @@ namespace Rcpp {
       
       // multiplication operators
       T operator*(const Proxy& rhs) {
-        debug("T operator*(const Proxy& rhs)\n");
+        RCPP_DEBUG("T operator*(const Proxy& rhs)\n");
         return as<T>(THIS) * as<T>(RHS);
       }
       
       friend T operator*(const T& lhs, const Proxy& rhs) {
-        debug("friend T operator*(const T& lhs, const Proxy& rhs)\n");
+        RCPP_DEBUG("friend T operator*(const T& lhs, const Proxy& rhs)\n");
         return lhs * as<T>(RHS);
       }
       
       template <typename U>
       T operator*(const U& rhs) {
-        debug("T operator*(const U& rhs)\n");
+        RCPP_DEBUG("T operator*(const U& rhs)\n");
         return as<T>(THIS) * rhs;
       }
       
@@ -121,18 +111,18 @@ namespace Rcpp {
       
       // division operators
       T operator/(const Proxy& rhs) {
-        debug("T operator/(const Proxy& rhs)\n");
+        RCPP_DEBUG("T operator/(const Proxy& rhs)\n");
         return as<T>(THIS) / as<T>(RHS);
       }
       
       friend T operator/(const T& lhs, const Proxy& rhs) {
-        debug("friend T operator/(const T& lhs, const Proxy& rhs)\n");
+        RCPP_DEBUG("friend T operator/(const T& lhs, const Proxy& rhs)\n");
         return lhs / as<T>(RHS);
       }
       
       template <typename U>
       T operator/(const U& rhs) {
-        debug("T operator/(const U& rhs)\n");
+        RCPP_DEBUG("T operator/(const U& rhs)\n");
         return as<T>(THIS) / rhs;
       }
       
@@ -144,7 +134,7 @@ namespace Rcpp {
       
       // read
       operator T() const {
-        debug("operator T() const\n");
+        RCPP_DEBUG("operator T() const\n");
         return as<T>(THIS);
       }
       
@@ -181,7 +171,12 @@ namespace Rcpp {
           return Proxy(*this, i);
         }
       }
-      Rf_error("No name '%s' in the names attribute of the list supplied", str.c_str());
+      std::stringstream s;
+      s << "No name '" <<
+        str <<
+        "' in the names of the attributes of the list supplied"
+      ;
+      throw Rcpp::exception(s.str().c_str());
     }
     
     const Proxy operator[](std::string str) const {
@@ -191,18 +186,25 @@ namespace Rcpp {
           return Proxy(const_cast< ListOf<T>& >(*this), i);
         }
       }
-      Rf_error("No name '%s' in the names attribute of the list supplied", str.c_str());
+      std::stringstream s;
+      s << "No name '" <<
+        str <<
+        "' in the names of the attributes of the list supplied"
+      ;
+      throw Rcpp::exception(s.str().c_str());
     }
     
     void validate() {
       for (int i=0; i < this->size(); ++i) {
         if (!is<T>( static_cast<List&>(*this)[i] )) {
-          Rf_error(
-            "Invalid ListOf<T> object: expected '%s' but got '%s' at index %i",
-            Rf_type2char( TYPEOF( T() ) ),
-            Rf_type2char( TYPEOF( static_cast<List&>(*this)[i] ) ),
-            i
-          );
+          std::stringstream s;
+          s << "Invalid ListOf<T> object: expected '" <<
+            Rf_type2char( TYPEOF( T() ) ) <<
+            "' but got '" <<
+            Rf_type2char( TYPEOF( static_cast<List&>(*this)[i] ) ) <<
+            "' at index " << i << "."
+          ;
+          throw Rcpp::exception(s.str().c_str());
         }
       }
     }
